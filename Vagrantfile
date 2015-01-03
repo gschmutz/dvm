@@ -11,13 +11,14 @@ end
 
 ip      = ENV.fetch("DOCKER_IP", "192.168.42.43")
 port    = ENV.fetch("DOCKER_PORT", "2375")
-memory  = ENV.fetch("DOCKER_MEMORY", "512")
+tls	    = ENV.fetch("DOCKER_TLS", "no")
+memory  = ENV.fetch("DOCKER_MEMORY", "1024")
 cpus    = ENV.fetch("DOCKER_CPUS", "1")
 cidr    = ENV.fetch("DOCKER0_CIDR", "")
 args    = ENV.fetch("DOCKER_ARGS", "")
 
-b2d_version = "1.2.0"
-release_url = "https://github.com/fnichol/boot2docker-vagrant-box/releases/download/v#{b2d_version}"
+b2d_version = "1.4.1"
+release_url = "https://github.com/gschmutz/boot2docker-vagrant-box/releases/download/v#{b2d_version}"
 
 docker0_bridge_setup = ""
 bridge_utils_url     = "ftp://ftp.nl.netbsd.org/vol/2/metalab/distributions/tinycorelinux/4.x/x86/tcz/bridge-utils.tcz"
@@ -140,10 +141,11 @@ Vagrant.configure("2") do |config|
     PROFILE=/var/lib/boot2docker/profile
     #{docker0_bridge_setup}
     rm -f $PROFILE && touch $PROFILE
-    if [ #{port} -ne '2375' ]; then
+    if [ #{port} -ne '' ]; then
       echo "---> Configuring docker to listen on port '#{port}'"
       echo "export DOCKER_HOST='-H tcp://0.0.0.0:#{port}'" >> $PROFILE
     fi
+    echo "export DOCKER_TLS='#{tls}'" >> $PROFILE
     if [ -n #{shq(args)} ]; then
       echo '---> Configuring docker with args "'#{shq(args)}'"'
       echo #{shq(args)} >> $PROFILE
